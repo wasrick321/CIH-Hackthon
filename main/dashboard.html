@@ -1,12 +1,102 @@
+<!-- /admin/dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - GenGuard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    hiiiiiiiiiiiiiiiiiiiiiiii adminss
-    <p>Welcome to the admin dashboard!</p>  
+<body class="bg-gradient-to-br from-blue-50 to-purple-100 min-h-screen p-6">
+  <div class="max-w-7xl mx-auto space-y-8">
+    <header class="flex justify-between items-center">
+      <h1 class="text-3xl font-bold text-blue-700">🏥 Hospital Dashboard - Admin</h1>
+      <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">Logout</button>
+    </header>
+
+    <section class="bg-white p-6 rounded-lg shadow-lg">
+      <h2 class="text-xl font-semibold mb-4">➕ Add Patient Record</h2>
+      <form onsubmit="addPatient(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input type="text" id="name" placeholder="Patient Name" required class="p-2 border rounded">
+        <input type="text" id="patientId" placeholder="Patient ID" required class="p-2 border rounded">
+        <input type="number" id="age" placeholder="Age" class="p-2 border rounded">
+        <input type="text" id="contact" placeholder="Contact Info" class="p-2 border rounded">
+        <div class="md:col-span-2">
+          <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">Add Patient</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="bg-white p-6 rounded-lg shadow-lg">
+      <h2 class="text-xl font-semibold mb-4">📋 Patient Records</h2>
+      <table class="w-full text-left border">
+        <thead class="bg-blue-100">
+          <tr>
+            <th class="p-2">ID</th>
+            <th class="p-2">Name</th>
+            <th class="p-2">Age</th>
+            <th class="p-2">Contact</th>
+            <th class="p-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="patient-table">
+          <!-- Rows added via JS -->
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+    const storageKey = 'admin-patients';
+    const patientTable = document.getElementById('patient-table');
+
+    function loadPatients() {
+      const patients = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      patientTable.innerHTML = '';
+      patients.forEach((p, i) => {
+        const row = document.createElement('tr');
+        row.classList.add('border-b');
+        row.innerHTML = `
+          <td class="p-2 font-mono">${p.id}</td>
+          <td class="p-2">${p.name}</td>
+          <td class="p-2">${p.age}</td>
+          <td class="p-2">${p.contact}</td>
+          <td class="p-2 space-x-2">
+            <a href="/user/analyze.html?patientId=${p.id}" class="text-blue-600 underline">Analyze</a>
+            <button onclick="deletePatient(${i})" class="text-red-600 underline">Delete</button>
+          </td>
+        `;
+        patientTable.appendChild(row);
+      });
+    }
+
+    function addPatient(e) {
+      e.preventDefault();
+      const patients = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      const newPatient = {
+        id: document.getElementById('patientId').value,
+        name: document.getElementById('name').value,
+        age: document.getElementById('age').value,
+        contact: document.getElementById('contact').value
+      };
+      patients.push(newPatient);
+      localStorage.setItem(storageKey, JSON.stringify(patients));
+      loadPatients();
+      e.target.reset();
+    }
+
+    function deletePatient(index) {
+      const patients = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      patients.splice(index, 1);
+      localStorage.setItem(storageKey, JSON.stringify(patients));
+      loadPatients();
+    }
+
+    function logout() {
+      window.location.href = '/index.html';
+    }
+
+    loadPatients();
+  </script>
 </body>
 </html>
