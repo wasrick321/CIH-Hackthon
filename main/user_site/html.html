@@ -297,51 +297,57 @@
             </div>
 
             <!-- Results Table -->
-            <div class="glass-morphism rounded-2xl p-8">
-                <div class="flex items-center space-x-2 mb-6">
-                    <i class="fas fa-microscope text-2xl text-blue-400"></i>
-                    <h3 class="text-2xl font-bold text-slate-900 dark:text-white">🧪 Mutation Analysis Results</h3>
-                </div>
-                
-                <!-- Search and Filter -->
-                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-                    <div class="flex items-center space-x-4">
-                        <div class="relative">
-                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
-                            <input type="text" id="search-input" placeholder="Search genes, mutations..." class="pl-10 pr-4 py-2 w-80 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white" oninput="filterResults()">
-                        </div>
-                        
-                        <select id="filter-category" class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white" onchange="filterResults()">
-                            <option value="all">All Categories</option>
-                            <option value="high">High Risk</option>
-                            <option value="medium">Medium Risk</option>
-                            <option value="low">Low Risk</option>
-                        </select>
+            <div id="analysis-results">
+                <!-- PDF Download Button (moved above for visibility) -->
+                <button id="downloadPdf" class="mt-2 mb-6 px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50">Download Detailed PDF Report</button>
+                <div class="glass-morphism rounded-2xl p-8">
+                    <div class="flex items-center space-x-2 mb-6">
+                        <i class="fas fa-microscope text-2xl text-blue-400"></i>
+                        <h3 class="text-2xl font-bold text-slate-900 dark:text-white">🧪 Mutation Analysis Results</h3>
                     </div>
                     
-                    <button class="flex items-center space-x-2 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-all duration-200">
-                        <i class="fas fa-download"></i>
-                        <span>Export Results</span>
-                    </button>
+                    <!-- Search and Filter -->
+                    <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                                <input type="text" id="search-input" placeholder="Search genes, mutations..." class="pl-10 pr-4 py-2 w-80 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white" oninput="filterResults()">
+                            </div>
+                            
+                            <select id="filter-category" class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white" onchange="filterResults()">
+                                <option value="all">All Categories</option>
+                                <option value="high">High Risk</option>
+                                <option value="medium">Medium Risk</option>
+                                <option value="low">Low Risk</option>
+                            </select>
+                        </div>
+                        
+                        <button class="flex items-center space-x-2 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-all duration-200">
+                            <i class="fas fa-download"></i>
+                            <span>Export Results</span>
+                        </button>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full" id="results-table">
+                            <thead>
+                                <tr class="border-b border-slate-200 dark:border-slate-700">
+                                    <th class="text-left p-4 font-semibold text-slate-700 dark:text-slate-300">Gene</th>
+                                    <th class="text-left p-4 font-semibold text-slate-700 dark:text-slate-300">Mutation</th>
+                                    <th class="text-left p-4 font-semibold text-slate-700 dark:text-slate-300">Disease</th>
+                                    <th class="text-left p-4 font-semibold text-slate-700 dark:text-slate-300">Risk Score</th>
+                                    <th class="text-left p-4 font-semibold text-slate-700 dark:text-slate-300">Clinical Significance</th>
+                                    <th class="text-left p-4 font-semibold text-slate-700 dark:text-slate-300">Confidence</th>
+                                </tr>
+                            </thead>
+                            <tbody id="results-tbody">
+                                <!-- Results will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                
-                <div class="overflow-x-auto">
-                    <table class="w-full" id="results-table">
-                        <thead>
-                            <tr class="border-b border-slate-200 dark:border-slate-700">
-                                <th class="text-left p-4 font-semibold text-slate-700 dark:text-slate-300">Gene</th>
-                                <th class="text-left p-4 font-semibold text-slate-700 dark:text-slate-300">Mutation</th>
-                                <th class="text-left p-4 font-semibold text-slate-700 dark:text-slate-300">Disease</th>
-                                <th class="text-left p-4 font-semibold text-slate-700 dark:text-slate-300">Risk Score</th>
-                                <th class="text-left p-4 font-semibold text-slate-700 dark:text-slate-300">Clinical Significance</th>
-                                <th class="text-left p-4 font-semibold text-slate-700 dark:text-slate-300">Confidence</th>
-                            </tr>
-                        </thead>
-                        <tbody id="results-tbody">
-                            <!-- Results will be populated here -->
-                        </tbody>
-                    </table>
-                </div>
+                <!-- PDF Download Button -->
+                <button id="downloadPdf" class="mt-6 px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg">Download PDF Report</button>
             </div>
         </div>
 
@@ -436,6 +442,7 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         // Global variables
         let mutationData = [];
@@ -1032,6 +1039,134 @@
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
+
+        // Helper: Get patient info from query string
+        function getPatientInfo() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                id: params.get('patientId') || '',
+                name: params.get('name') || '',
+                age: params.get('age') || '',
+                contact: params.get('contact') || ''
+            };
+        }
+
+        // Helper: Format date
+        function formatDate(date) {
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        }
+
+        // Enhanced PDF export
+        function generateDetailedPDF() {
+            if (!analysisResults.length) return;
+
+            const patient = getPatientInfo();
+            const now = new Date();
+
+            // Build HTML for PDF
+            let html = `
+                <div style="font-family: 'Inter', Arial, sans-serif; padding: 32px; color: #222;">
+                    <div style="text-align: center; margin-bottom: 32px;">
+                        <img src="https://cdn-icons-png.flaticon.com/512/616/616494.png" width="64" style="margin-bottom: 8px;" />
+                        <h1 style="font-size: 2.2rem; color: #3b82f6; margin: 0;">GenGuard DNA Mutation Analysis Report</h1>
+                        <div style="font-size: 1.1rem; color: #6366f1; margin-bottom: 8px;">AI-Powered Genomic Insights</div>
+                        <div style="font-size: 0.95rem; color: #888;">Generated: ${formatDate(now)}</div>
+                    </div>
+                    <hr style="margin: 24px 0;">
+                    <div style="margin-bottom: 18px;">
+                        <h2 style="font-size: 1.2rem; color: #4f46e5; margin-bottom: 6px;">Patient Information</h2>
+                        <table style="width: 100%; font-size: 1rem;">
+                            <tr>
+                                <td><b>ID:</b></td>
+                                <td>${patient.id || '-'}</td>
+                                <td><b>Name:</b></td>
+                                <td>${patient.name || '-'}</td>
+                            </tr>
+                            <tr>
+                                <td><b>Age:</b></td>
+                                <td>${patient.age || '-'}</td>
+                                <td><b>Contact:</b></td>
+                                <td>${patient.contact || '-'}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div style="margin-bottom: 18px;">
+                        <h2 style="font-size: 1.2rem; color: #4f46e5; margin-bottom: 6px;">Summary Metrics</h2>
+                        <table style="width: 100%; font-size: 1rem; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 4px 8px;"><b>Total Mutations:</b></td>
+                                <td style="padding: 4px 8px;">${analysisResults.length}</td>
+                                <td style="padding: 4px 8px;"><b>High Risk:</b></td>
+                                <td style="padding: 4px 8px; color: #ef4444;">${analysisResults.filter(r=>r.category==='High').length}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 4px 8px;"><b>Medium Risk:</b></td>
+                                <td style="padding: 4px 8px; color: #f59e0b;">${analysisResults.filter(r=>r.category==='Medium').length}</td>
+                                <td style="padding: 4px 8px;"><b>Low Risk:</b></td>
+                                <td style="padding: 4px 8px; color: #10b981;">${analysisResults.filter(r=>r.category==='Low').length}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div style="margin-bottom: 18px;">
+                        <h2 style="font-size: 1.2rem; color: #4f46e5; margin-bottom: 6px;">Mutation Analysis Results</h2>
+                        <table style="width: 100%; font-size: 0.95rem; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #e0e7ff;">
+                                    <th style="padding: 6px; border: 1px solid #c7d2fe;">Gene</th>
+                                    <th style="padding: 6px; border: 1px solid #c7d2fe;">Mutation</th>
+                                    <th style="padding: 6px; border: 1px solid #c7d2fe;">Disease</th>
+                                    <th style="padding: 6px; border: 1px solid #c7d2fe;">Risk</th>
+                                    <th style="padding: 6px; border: 1px solid #c7d2fe;">Clinical Significance</th>
+                                    <th style="padding: 6px; border: 1px solid #c7d2fe;">Confidence</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${analysisResults.map(r => `
+                                    <tr>
+                                        <td style="padding: 6px; border: 1px solid #c7d2fe; font-weight: bold; color: #2563eb;">${r.gene}</td>
+                                        <td style="padding: 6px; border: 1px solid #c7d2fe;">${r.mutation}</td>
+                                        <td style="padding: 6px; border: 1px solid #c7d2fe;">${r.disease}</td>
+                                        <td style="padding: 6px; border: 1px solid #c7d2fe; color: ${
+                                            r.category === 'High' ? '#ef4444' : r.category === 'Medium' ? '#f59e0b' : '#10b981'
+                                        };">${r.riskScore}%</td>
+                                        <td style="padding: 6px; border: 1px solid #c7d2fe;">${r.clinicalSignificance}</td>
+                                        <td style="padding: 6px; border: 1px solid #c7d2fe;">${r.confidence}%</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: 32px; text-align: center; color: #64748b; font-size: 0.95rem;">
+                        <b>GenGuard</b> &copy; ${now.getFullYear()} &mdash; AI-Powered DNA Mutation Analyzer
+                    </div>
+                </div>
+            `;
+
+            const opt = {
+                margin:       0,
+                filename:     `GenGuard_Report_${patient.id || 'patient'}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(html).save();
+        }
+
+        // Enable/disable PDF button based on results
+        function updatePdfButtonState() {
+            const btn = document.getElementById('downloadPdf');
+            btn.disabled = !analysisResults.length;
+        }
+
+        // Attach PDF export event
+        document.getElementById('downloadPdf').addEventListener('click', generateDetailedPDF);
+
+        // Update PDF button state after results are processed
+        const origUpdateResultsTable = updateResultsTable;
+        updateResultsTable = function(results) {
+            origUpdateResultsTable(results);
+            updatePdfButtonState();
+        };
     </script>
 </body>
 </html>
