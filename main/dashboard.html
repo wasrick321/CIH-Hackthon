@@ -44,8 +44,16 @@
         </tbody>
       </table>
     </section>
+
+    <section class="bg-white p-6 rounded-lg shadow-lg">
+      <h2 class="text-xl font-semibold mb-4">📂 Upload Multi-Patient Mutation CSV</h2>
+      <input type="file" id="multiPatientCsv" accept=".csv" class="mb-4">
+      <button onclick="uploadMultiPatientCsv()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg mb-4">Upload & Analyze</button>
+      <div id="multi-patient-table-container" class="overflow-x-auto mt-6"></div>
+    </section>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script>
     const storageKey = 'admin-patients';
     const patientTable = document.getElementById('patient-table');
@@ -62,7 +70,7 @@
           <td class="p-2">${p.age}</td>
           <td class="p-2">${p.contact}</td>
           <td class="p-2 space-x-2">
-            <a href="/user/analyze.html?patientId=${p.id}" class="text-blue-600 underline">Analyze</a>
+            <button onclick="analyzePatient('${p.id}')" class="text-blue-600 underline">Analyze</button>
             <button onclick="deletePatient(${i})" class="text-red-600 underline">Delete</button>
           </td>
         `;
@@ -94,6 +102,105 @@
 
     function logout() {
       window.location.href = '/index.html';
+    }
+
+    // --- Multi-Patient CSV Upload & Table ---
+    let multiPatientData = {};
+    let allMutations = [];
+
+    function uploadMultiPatientCsv() {
+      const fileInput = document.getElementById('multiPatientCsv');
+      const file = fileInput.files[0];
+      if (!file) return alert('Please select a CSV file.');
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+          processMultiPatientData(results.data);
+        }
+      });
+    }
+
+    function processMultiPatientData(rows) {
+      multiPatientData = {};
+      allMutations = [];
+      // Group by UserID
+      rows.forEach(row => {
+        const userId = row.UserID?.trim();
+        const gene = row.Gene?.trim();
+        const mutation = row.Mutation?.trim();
+        if (!userId || !gene || !mutation) return;
+        if (!multiPatientData[userId]) multiPatientData[userId] = [];
+        multiPatientData[userId].push({ gene, mutation });
+        allMutations.push(`${gene}|${mutation}`);
+      });
+      // Unique mutations
+      allMutations = [...new Set(allMutations)];
+      // Save to localStorage for later Analyze button use
+      localStorage.setItem('multiPatientData', JSON.stringify(multiPatientData));
+      renderMultiPatientTable();
+    }
+
+    function renderMultiPatientTable() {
+      const container = document.getElementById('multi-patient-table-container');
+      if (!Object.keys(multiPatientData).length) {
+        container.innerHTML = '';
+        return;
+      }
+      // Table header
+      let html = `<table class="min-w-full border text-center"><thead><tr>
+        <th class="p-2 border bg-blue-100">Gene</th>
+        <th class="p-2 border bg-blue-100">Mutation</th>`;
+      Object.keys(multiPatientData).forEach(uid => {
+        html += `<th class="p-2 border bg-purple-100">${uid}</th>`;
+      });
+      html += `</tr></thead><tbody>`;
+      // Table body
+      allMutations.forEach(mutKey => {
+        const [gene, mutation] = mutKey.split('|');
+        html += `<tr>
+          <td class="p-2 border">${gene}</td>
+          <td class="p-2 border">${mutation}</td>`;
+        Object.keys(multiPatientData).forEach(uid => {
+          const hasMutation = multiPatientData[uid].some(m => m.gene === gene && m.mutation === mutation);
+          html += `<td class="p-2 border">${hasMutation ? '✅' : ''}</td>`;
+        });
+        html += `</tr>`;
+      });
+      html += `</tbody></table>`;
+
+      // Show Report buttons
+      html += `<div class="flex flex-wrap gap-4 mt-6">`;
+      Object.keys(multiPatientData).forEach(uid => {
+        html += `<button onclick="showPatientReport('${uid}')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">Show Report: ${uid}</button>`;
+      });
+      html += `</div>`;
+
+      container.innerHTML = html;
+    }
+
+    function showPatientReport(userId) {
+      // Save selected userId and their mutations to localStorage
+      localStorage.setItem('selectedUserId', userId);
+      localStorage.setItem('selectedUserMutations', JSON.stringify(multiPatientData[userId]));
+      window.open('../user_site/html.html?patientId=' + encodeURIComponent(userId), '_blank');
+    }
+
+    // Analyze button in patient table (uses multiPatientData if available)
+    function analyzePatient(userId) {
+      // Try to get multiPatientData from localStorage
+      let multiData = {};
+      try {
+        multiData = JSON.parse(localStorage.getItem('multiPatientData') || '{}');
+      } catch {}
+      if (multiData && multiData[userId]) {
+        localStorage.setItem('selectedUserId', userId);
+        localStorage.setItem('selectedUserMutations', JSON.stringify(multiData[userId]));
+        window.open('../user_site/html.html?patientId=' + encodeURIComponent(userId), '_blank');
+      } else {
+        // fallback: open report page with just patientId (no mutation data)
+        window.open('../user_site/html.html?patientId=' + encodeURIComponent(userId), '_blank');
+      }
     }
 
     loadPatients();

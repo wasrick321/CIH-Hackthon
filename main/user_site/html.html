@@ -482,6 +482,30 @@
             
             // Chat button event
             document.getElementById('chatbot-button').addEventListener('click', toggleChat);
+            
+            // --- Multi-user support: filter by selectedUserId if present ---
+            function getSelectedUserMutations() {
+                // 1. Try localStorage (from admin dashboard)
+                const userId = localStorage.getItem('selectedUserId') || (new URLSearchParams(window.location.search)).get('patientId');
+                if (userId && localStorage.getItem('selectedUserMutations')) {
+                    try {
+                        return JSON.parse(localStorage.getItem('selectedUserMutations'));
+                    } catch { return null; }
+                }
+                return null;
+            }
+
+            // On load, if selectedUserId is present, use only that user's mutations
+            const userMutations = getSelectedUserMutations();
+            if (userMutations) {
+                // Use only this user's mutations, and clear after use
+                mutationData = userMutations.map(m => ({ Gene: m.gene, Mutation: m.mutation }));
+                clinvarData = sampleClinvarData; // Or load real clinvar data if available
+                processData(mutationData, clinvarData);
+                // Optionally clear so next patient doesn't get wrong data
+                // localStorage.removeItem('selectedUserId');
+                // localStorage.removeItem('selectedUserMutations');
+            }
         });
 
         // Dark mode toggle
